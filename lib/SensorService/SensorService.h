@@ -16,9 +16,11 @@ class SensorService
 
 public:
     SensorService();
-    
-    bool IsHeartBeatDetected();
+
     bool Start();
+    bool CanGetHeartBeat();
+    bool IsBufferFull();
+
     int GetHeartBeat();
 
     void Clear();

@@ -24,55 +24,39 @@ bool SensorService::Start()
     return true;
 }
 
-bool SensorService::IsHeartBeatDetected()
+bool SensorService::CanGetHeartBeat()
 {
-    return checkForBeat(particleSensor.getIR());
+    if (!checkForBeat(particleSensor.getIR()))
+        return false;
+
+    long delta = millis() - lastBeat;
+    lastBeat = millis();
+
+    long beatsPerMinute = 60 / (delta / 1000.0);
+
+    if (beatsPerMinute > 20 && beatsPerMinute < 255)
+    {
+        rates[rateSpot++] = (byte)beatsPerMinute;
+        rateSpot %= ARRAY_RATE_SIZE;
+
+        beat = 0;
+        for (int i = 0; i < ARRAY_RATE_SIZE; ++i)
+        {
+            beat += rates[i];
+        }
+        beat /= ARRAY_RATE_SIZE;
+    }
+
+    return true;
+}
+
+bool SensorService::IsBufferFull()
+{
+    return rates[ARRAY_RATE_SIZE - 1] != 0;
 }
 
 int SensorService::GetHeartBeat()
 {
-    if (isFirstGetBeat)
-    {
-        while (rates[ARRAY_RATE_SIZE - 1] == 0)
-        {
-            if (checkForBeat(particleSensor.getIR()))
-            {
-                long delta = millis() - lastBeat;
-                lastBeat = millis();
-
-                long beatsPerMinute = 60 / (delta / 1000.0);
-
-                if (beatsPerMinute > 20 && beatsPerMinute < 255)
-                {
-                    rates[rateSpot++] = (byte)beatsPerMinute;
-                    rateSpot %= ARRAY_RATE_SIZE;
-                }
-            }
-        }
-        isFirstGetBeat = false;
-    }
-    else if (checkForBeat(particleSensor.getIR()))
-    {
-        long delta = millis() - lastBeat;
-        lastBeat = millis();
-
-        long beatsPerMinute = 60 / (delta / 1000.0);
-
-        if (beatsPerMinute > 20 && beatsPerMinute < 255)
-        {
-            rates[rateSpot++] = (byte)beatsPerMinute;
-            rateSpot %= ARRAY_RATE_SIZE;
-
-            beat = 0;
-            for (int i = 0; i < ARRAY_RATE_SIZE; ++i)
-            {
-                beat += rates[i];
-            }
-
-            beat /= ARRAY_RATE_SIZE;
-        }
-    }
-
     return beat;
 }
 

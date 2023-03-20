@@ -32,7 +32,7 @@ void loop()
 {
   if (IsDeviceConnected)
   {
-    if (pSensorService->IsHeartBeatDetected())
+    if (pSensorService->CanGetHeartBeat() && pSensorService->IsBufferFull())
     {
       int hb = pSensorService->GetHeartBeat();
       pPOServer->NotifyHeartBeat(hb);
@@ -42,10 +42,9 @@ void loop()
   {
     if (IsNeedRestart)
     {
+      pSensorService->Clear();
       pPOServer->Start();
       IsNeedRestart = false;
     }
   }
-
-  delay(1000);
 }
