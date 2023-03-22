@@ -4,6 +4,9 @@
 #include <POServer.h>
 #include <SensorService.h>
 
+#define I2C_SDA 4
+#define I2C_SCL 5
+
 SensorService *pSensorService;
 
 POServer *pPOServer = nullptr;
@@ -13,7 +16,7 @@ bool IsNeedRestart;
 void setup()
 {
   Serial.begin(115200);
-  Serial.println("Test message");
+  Wire.begin(I2C_SDA, I2C_SCL);
 
   pSensorService = new SensorService();
   if (!pSensorService->Start())
