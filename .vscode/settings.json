@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "cstddef": "cpp",
+        "memory": "cpp",
+        "type_traits": "cpp",
+        "functional": "cpp"
+    }
+}

@@ -11,22 +11,28 @@ POServer::POServer()
     pBLEServer = BLEDevice::createServer();
     pBLEServer->setCallbacks(new POServerCallbacks());
 
-    pHBService = pBLEServer->createService(HEART_BEAT_SERVICE);
+    pPOService = pBLEServer->createService(PULSEOXIMETER_SERVICE);
 
-    pHbDetectedCharacteristic = pHBService->createCharacteristic(
-        HEART_BEAT_DETECTION_CHARACTERISTIC,
-        BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-    pHbDetectedCharacteristic->addDescriptor(new BLE2902());
+    pMeasurementSelectionCharacteristic = pPOService->createCharacteristic(
+        MEASUREMENT_SELECTION_CHARACTERISTIC,
+        BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
+    pMeasurementSelectionCharacteristic->setCallbacks(new MeasurementSelectionCallbacks());
 
-    pHbCharacteristic = pHBService->createCharacteristic(
+    pHeartBeatCharacteristic = pPOService->createCharacteristic(
         HEART_BEAT_CHARACTERISTIC,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-    pHbCharacteristic->addDescriptor(new BLE2902());
+    pHeartBeatCharacteristic->addDescriptor(new BLE2902());
 
-    pHBService->addCharacteristic(pHbDetectedCharacteristic);
-    pHBService->addCharacteristic(pHbCharacteristic);
+    pOxygenSaturationCharacteristic = pPOService->createCharacteristic(
+        OXYGEN_SATUARATION_CHARACTERISTIC,
+        BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
+    pOxygenSaturationCharacteristic->addDescriptor(new BLE2902());
 
-    pHBService->start();
+    pPOService->addCharacteristic(pMeasurementSelectionCharacteristic);
+    pPOService->addCharacteristic(pHeartBeatCharacteristic);
+    pPOService->addCharacteristic(pOxygenSaturationCharacteristic);
+
+    pPOService->start();
 }
 
 void POServer::Start()
@@ -36,6 +42,12 @@ void POServer::Start()
 
 void POServer::NotifyHeartBeat(int &value)
 {
-    pHbCharacteristic->setValue(value);
-    pHbCharacteristic->notify();
+    pHeartBeatCharacteristic->setValue(value);
+    pHeartBeatCharacteristic->notify();
+}
+
+void POServer::NotifyOxygenSaturation(int &value)
+{
+    pOxygenSaturationCharacteristic->setValue(value);
+    pOxygenSaturationCharacteristic->notify();
 }

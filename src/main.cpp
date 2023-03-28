@@ -7,11 +7,13 @@
 #define I2C_SDA 4
 #define I2C_SCL 5
 
-SensorService *pSensorService;
-
+SensorService *pSensorService = nullptr;
 POServer *pPOServer = nullptr;
-bool IsDeviceConnected;
-bool IsNeedRestart;
+
+bool IsDeviceConnected = false;
+bool IsNeedRestart = false;
+
+int MeasurementSelection = 0;
 
 void setup()
 {
@@ -21,10 +23,9 @@ void setup()
   pSensorService = new SensorService();
   if (!pSensorService->Start())
   {
-    Serial.println("MAX30102 was not found. Please check wiring/power.");
+    Serial.println("MAX3010X was not found. Please check wiring/power.");
     while (1)
-    {
-    }
+      ;
   }
 
   pPOServer = new POServer();
@@ -35,10 +36,24 @@ void loop()
 {
   if (IsDeviceConnected)
   {
-    if (pSensorService->CanGetHeartBeat() && pSensorService->IsBufferFull())
+    if (MeasurementSelection == 1)
     {
-      int hb = pSensorService->GetHeartBeat();
-      pPOServer->NotifyHeartBeat(hb);
+      if (pSensorService->CanGetHeartBeat() && pSensorService->IsHeartRateArrayFull())
+      {
+        int hb = pSensorService->GetHeartBeat();
+        Serial.println(hb);
+        pPOServer->NotifyHeartBeat(hb);
+      }
+    }
+    else if (MeasurementSelection == 2)
+    {
+      
+      if (pSensorService->CanGetSaturation() && pSensorService->IsSaturationBufferFull())
+      {
+        int ox = pSensorService->GetSaturation();
+        Serial.println(ox);
+        pPOServer->NotifyOxygenSaturation(ox);
+      }
     }
   }
   else
