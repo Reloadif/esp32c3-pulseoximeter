@@ -1,17 +1,14 @@
 #include <Arduino.h>
 #include "MAX30105.h"
 
-#define ARRAY_HEARTRATE_SIZE 4
 #define BUFFER_SATURATION_SIZE 100
 
 class SensorService
 {
     MAX30105 particleSensor;
 
-    byte rates[ARRAY_HEARTRATE_SIZE];
-    byte rateSpot;
     long lastBeat;
-    int32_t beat;
+    int beat;
 
     uint32_t irBuffer[BUFFER_SATURATION_SIZE];
     uint32_t redBuffer[BUFFER_SATURATION_SIZE];
@@ -25,13 +22,12 @@ public:
 
     bool Start();
 
-    bool CanGetHeartBeat();
-    bool IsHeartRateArrayFull();
-    int32_t GetHeartBeat();
+    bool CanGetLastBeat();
+    int GetLastBeat();
 
     bool CanGetSaturation();
     bool IsSaturationBufferFull();
-    int32_t GetSaturation();
+    int GetSaturation();
 
     void Clear();
 };

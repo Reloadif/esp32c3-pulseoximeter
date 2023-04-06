@@ -4,12 +4,8 @@
 #include "heartRate.h"
 #include "spo2_algorithm.h"
 
-SensorService::SensorService() : rateSpot(0), lastBeat(0), beat(0), spo2(0), validSPO2(0)
+SensorService::SensorService() : lastBeat(0), beat(0), spo2(0), validSPO2(0)
 {
-    for (byte i = 0; i < ARRAY_HEARTRATE_SIZE; ++i)
-    {
-        rates[i] = 0;
-    }
     for (byte i = 0; i < BUFFER_SATURATION_SIZE; ++i)
     {
         irBuffer[i] = 0;
@@ -30,7 +26,7 @@ bool SensorService::Start()
     return true;
 }
 
-bool SensorService::CanGetHeartBeat()
+bool SensorService::CanGetLastBeat()
 {
     if (!checkForBeat(particleSensor.getIR()))
         return false;
@@ -39,29 +35,15 @@ bool SensorService::CanGetHeartBeat()
     lastBeat = millis();
 
     long beatsPerMinute = 60 / (delta / 1000.0);
+    if (beatsPerMinute <= 20 || beatsPerMinute >= 255)
+        return false;
 
-    if (beatsPerMinute > 20 && beatsPerMinute < 255)
-    {
-        rates[rateSpot++] = (byte)beatsPerMinute;
-        rateSpot %= ARRAY_HEARTRATE_SIZE;
-
-        beat = 0;
-        for (int i = 0; i < ARRAY_HEARTRATE_SIZE; ++i)
-        {
-            beat += rates[i];
-        }
-        beat /= ARRAY_HEARTRATE_SIZE;
-    }
+    beat = static_cast<int>(delta);
 
     return true;
 }
 
-bool SensorService::IsHeartRateArrayFull()
-{
-    return rates[ARRAY_HEARTRATE_SIZE - 1] != 0;
-}
-
-int32_t SensorService::GetHeartBeat()
+int SensorService::GetLastBeat()
 {
     return beat;
 }
@@ -96,23 +78,18 @@ bool SensorService::IsSaturationBufferFull()
     return redBuffer[BUFFER_SATURATION_SIZE - 1] != 0 && irBuffer[BUFFER_SATURATION_SIZE - 1] != 0;
 }
 
-int32_t SensorService::GetSaturation()
+int SensorService::GetSaturation()
 {
-    return spo2;
+    return static_cast<int>(spo2);
 }
 
 void SensorService::Clear()
 {
-    rateSpot = 0;
     lastBeat = 0;
     beat = 0;
     spo2 = 0;
     validSPO2 = 0;
 
-    for (byte i = 0; i < ARRAY_HEARTRATE_SIZE; ++i)
-    {
-        rates[i] = 0;
-    }
     for (byte i = 0; i < BUFFER_SATURATION_SIZE; ++i)
     {
         irBuffer[i] = 0;

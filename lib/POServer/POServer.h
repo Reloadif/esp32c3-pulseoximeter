@@ -6,7 +6,7 @@
 #define PULSEOXIMETER_SERVICE "5fafc201-1fb5-459e-8fcc-000000000000"
 
 #define MEASUREMENT_SELECTION_CHARACTERISTIC "5fafc201-1fb5-459e-8fcc-000000000001"
-#define HEART_BEAT_CHARACTERISTIC "5fafc201-1fb5-459e-8fcc-000000000002"
+#define LAST_BEAT_CHARACTERISTIC "5fafc201-1fb5-459e-8fcc-000000000002"
 #define OXYGEN_SATUARATION_CHARACTERISTIC "5fafc201-1fb5-459e-8fcc-000000000003"
 
 extern bool IsDeviceConnected;
@@ -55,13 +55,13 @@ class POServer
 
     BLEService *pPOService;
     BLECharacteristic *pMeasurementSelectionCharacteristic;
-    BLECharacteristic *pHeartBeatCharacteristic;
+    BLECharacteristic *pLastBeatCharacteristic;
     BLECharacteristic *pOxygenSaturationCharacteristic;
 
 public:
     POServer();
     void Start();
 
-    void NotifyHeartBeat(int &value);
+    void NotifyLastBeat(int &value);
     void NotifyOxygenSaturation(int &value);
 };

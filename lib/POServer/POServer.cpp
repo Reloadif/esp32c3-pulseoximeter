@@ -18,10 +18,10 @@ POServer::POServer()
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_WRITE);
     pMeasurementSelectionCharacteristic->setCallbacks(new MeasurementSelectionCallbacks());
 
-    pHeartBeatCharacteristic = pPOService->createCharacteristic(
-        HEART_BEAT_CHARACTERISTIC,
+    pLastBeatCharacteristic = pPOService->createCharacteristic(
+        LAST_BEAT_CHARACTERISTIC,
         BLECharacteristic::PROPERTY_READ | BLECharacteristic::PROPERTY_NOTIFY);
-    pHeartBeatCharacteristic->addDescriptor(new BLE2902());
+    pLastBeatCharacteristic->addDescriptor(new BLE2902());
 
     pOxygenSaturationCharacteristic = pPOService->createCharacteristic(
         OXYGEN_SATUARATION_CHARACTERISTIC,
@@ -29,7 +29,7 @@ POServer::POServer()
     pOxygenSaturationCharacteristic->addDescriptor(new BLE2902());
 
     pPOService->addCharacteristic(pMeasurementSelectionCharacteristic);
-    pPOService->addCharacteristic(pHeartBeatCharacteristic);
+    pPOService->addCharacteristic(pLastBeatCharacteristic);
     pPOService->addCharacteristic(pOxygenSaturationCharacteristic);
 
     pPOService->start();
@@ -40,10 +40,10 @@ void POServer::Start()
     pBLEServer->getAdvertising()->start();
 }
 
-void POServer::NotifyHeartBeat(int &value)
+void POServer::NotifyLastBeat(int &value)
 {
-    pHeartBeatCharacteristic->setValue(value);
-    pHeartBeatCharacteristic->notify();
+    pLastBeatCharacteristic->setValue(value);
+    pLastBeatCharacteristic->notify();
 }
 
 void POServer::NotifyOxygenSaturation(int &value)

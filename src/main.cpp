@@ -38,11 +38,10 @@ void loop()
   {
     if (MeasurementSelection == 1)
     {
-      if (pSensorService->CanGetHeartBeat() && pSensorService->IsHeartRateArrayFull())
+      if (pSensorService->CanGetLastBeat())
       {
-        int hb = pSensorService->GetHeartBeat();
-        Serial.println(hb);
-        pPOServer->NotifyHeartBeat(hb);
+        int lb = pSensorService->GetLastBeat();
+        pPOServer->NotifyLastBeat(lb);
       }
     }
     else if (MeasurementSelection == 2)
@@ -51,7 +50,6 @@ void loop()
       if (pSensorService->CanGetSaturation() && pSensorService->IsSaturationBufferFull())
       {
         int ox = pSensorService->GetSaturation();
-        Serial.println(ox);
         pPOServer->NotifyOxygenSaturation(ox);
       }
     }
